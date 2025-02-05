@@ -1,19 +1,19 @@
 import java.util.Scanner;
 
 /**
- * AsepBot is a simple chatbot that can store tasks and list them on request.
- * It uses a fixed-size array to store up to 100 tasks.
+ * Asep is a simple chatbot that can store tasks, list them,
+ * and mark/unmark tasks as done. It uses a fixed-size array to store up to 100 tasks.
  */
 public class Asep {
     private static final int MAX_TASKS = 100;
-    private final String[] tasks;
+    private final Task[] tasks;
     private int taskCount;
 
     /**
-     * Constructs a new Asep.
+     * Constructs a new Asep chatbot.
      */
     public Asep() {
-        tasks = new String[MAX_TASKS];
+        tasks = new Task[MAX_TASKS];
         taskCount = 0;
     }
 
@@ -32,6 +32,10 @@ public class Asep {
                 break;
             } else if (userInput.equalsIgnoreCase("list")) {
                 printTaskList();
+            } else if (userInput.toLowerCase().startsWith("mark ")) {
+                processMarkCommand(userInput);
+            } else if (userInput.toLowerCase().startsWith("unmark ")) {
+                processUnmarkCommand(userInput);
             } else {
                 addTask(userInput);
                 printTaskAdded(userInput);
@@ -61,13 +65,13 @@ public class Asep {
     }
 
     /**
-     * Adds a task to the task list.
+     * Adds a new task with the given description.
      *
-     * @param task the task description to add
+     * @param taskDescription the description of the task to add
      */
-    private void addTask(String task) {
+    private void addTask(String taskDescription) {
         if (taskCount < MAX_TASKS) {
-            tasks[taskCount++] = task;
+            tasks[taskCount++] = new Task(taskDescription);
         } else {
             System.out.println("____________________________________________________________");
             System.out.println(" Task list is full. Cannot add more tasks.");
@@ -76,34 +80,88 @@ public class Asep {
     }
 
     /**
-     * Prints the confirmation message when a task is added.
+     * Prints confirmation when a task is added.
      *
-     * @param task the task description that was added
+     * @param taskDescription the task description that was added
      */
-    private void printTaskAdded(String task) {
+    private void printTaskAdded(String taskDescription) {
         System.out.println("____________________________________________________________");
-        System.out.println(" added: " + task);
+        System.out.println(" added: " + taskDescription);
         System.out.println("____________________________________________________________");
     }
 
     /**
-     * Prints the list of tasks.
+     * Prints the current list of tasks.
      */
     private void printTaskList() {
         System.out.println("____________________________________________________________");
+        System.out.println(" Here are the tasks in your list:");
         for (int i = 0; i < taskCount; i++) {
-            System.out.println(" " + (i + 1) + ". " + tasks[i]);
+            System.out.println(" " + (i + 1) + "." + tasks[i].toString());
         }
         System.out.println("____________________________________________________________");
     }
 
     /**
-     * The main method to start the AsepBot.
+     * Processes the 'mark' command to mark a task as done.
+     *
+     * @param command the full command string, e.g., "mark 2"
+     */
+    private void processMarkCommand(String command) {
+        String[] parts = command.split("\\s+");
+        if (parts.length != 2) {
+            System.out.println("Invalid command format. Usage: mark <task number>");
+            return;
+        }
+        try {
+            int index = Integer.parseInt(parts[1]) - 1;
+            if (index < 0 || index >= taskCount) {
+                System.out.println("Invalid task number.");
+                return;
+            }
+            tasks[index].markAsDone();
+            System.out.println("____________________________________________________________");
+            System.out.println(" Nice! I've marked this task as done:");
+            System.out.println("   " + tasks[index].toString());
+            System.out.println("____________________________________________________________");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid task number.");
+        }
+    }
+
+    /**
+     * Processes the 'unmark' command to mark a task as not done.
+     *
+     * @param command the full command string, e.g., "unmark 2"
+     */
+    private void processUnmarkCommand(String command) {
+        String[] parts = command.split("\\s+");
+        if (parts.length != 2) {
+            System.out.println("Invalid command format. Usage: unmark <task number>");
+            return;
+        }
+        try {
+            int index = Integer.parseInt(parts[1]) - 1;
+            if (index < 0 || index >= taskCount) {
+                System.out.println("Invalid task number.");
+                return;
+            }
+            tasks[index].markAsNotDone();
+            System.out.println("____________________________________________________________");
+            System.out.println(" OK, I've marked this task as not done yet:");
+            System.out.println("   " + tasks[index].toString());
+            System.out.println("____________________________________________________________");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid task number.");
+        }
+    }
+
+    /**
+     * The main method to start the chatbot.
      *
      * @param args command-line arguments (not used)
      */
     public static void main(String[] args) {
-        Asep asepBot = new Asep();
-        asepBot.run();
+        new Asep().run();
     }
 }
