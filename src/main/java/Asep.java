@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 /**
  * Asep is a chatbot that tracks tasks of various types:
@@ -7,16 +8,13 @@ import java.util.Scanner;
  */
 
 public class Asep {
-    private static final int MAX_TASKS = 100;
-    private final Task[] tasks;
-    private int taskCount;
+    private final ArrayList<Task> tasks; // Use ArrayList instead of fixed array
 
     /**
      * Constructs a new Asep chatbot.
      */
     public Asep() {
-        tasks = new Task[MAX_TASKS];
-        taskCount = 0;
+        this.tasks = new ArrayList<>(); // Initialize ArrayList
     }
 
     /**
@@ -38,6 +36,8 @@ public class Asep {
                     processMarkCommand(userInput);
                 } else if (userInput.toLowerCase().startsWith("unmark ")) {
                     processUnmarkCommand(userInput);
+                } else if (userInput.toLowerCase().startsWith("delete ")) {
+                    processDeleteCommand(userInput);
                 } else if (userInput.toLowerCase().startsWith("todo ")) {
                     processTodoCommand(userInput);
                 } else if (userInput.toLowerCase().startsWith("deadline ")) {
@@ -77,8 +77,8 @@ public class Asep {
     private void printTaskList() {
         System.out.println("____________________________________________________________");
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println(" " + (i + 1) + "." + tasks[i].toString());
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + tasks.get(i).toString());
         }
         System.out.println("____________________________________________________________");
     }
@@ -91,14 +91,14 @@ public class Asep {
         }
         try {
             int index = Integer.parseInt(parts[1]) - 1;
-            if (index < 0 || index >= taskCount) {
+            if (index < 0 || index >= tasks.size()) {
                 System.out.println("Invalid task number.");
                 return;
             }
-            tasks[index].markAsDone();
+            tasks.get(index).markAsDone();
             System.out.println("____________________________________________________________");
             System.out.println(" Nice! I've marked this task as done:");
-            System.out.println("   " + tasks[index].toString());
+            System.out.println("   " + tasks.get(index).toString());
             System.out.println("____________________________________________________________");
         } catch (NumberFormatException e) {
             System.out.println("Invalid task number.");
@@ -113,17 +113,41 @@ public class Asep {
         }
         try {
             int index = Integer.parseInt(parts[1]) - 1;
-            if (index < 0 || index >= taskCount) {
+            if (index < 0 || index >= tasks.size()) {
                 System.out.println("Invalid task number.");
                 return;
             }
-            tasks[index].markAsNotDone();
+            tasks.get(index).markAsNotDone();
             System.out.println("____________________________________________________________");
             System.out.println(" OK, I've marked this task as not done yet:");
-            System.out.println("   " + tasks[index].toString());
+            System.out.println("   " + tasks.get(index).toString());
             System.out.println("____________________________________________________________");
         } catch (NumberFormatException e) {
             System.out.println("Invalid task number.");
+        }
+    }
+
+    private void processDeleteCommand(String command) throws AsepException {
+        String[] parts = command.split("\\s+");
+        if (parts.length != 2) {
+            throw new AsepException("Invalid command format. Use: delete <task number>");
+        }
+
+        try {
+            int index = Integer.parseInt(parts[1]) - 1;
+            if (index < 0 || index >= tasks.size()) {
+                throw new AsepException("Invalid task number.");
+            }
+
+            Task removedTask = tasks.remove(index);
+            System.out.println("____________________________________________________________");
+            System.out.println(" Noted. I've removed this task:");
+            System.out.println("   " + removedTask);
+            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+            System.out.println("____________________________________________________________");
+
+        } catch (NumberFormatException e) {
+            throw new AsepException("Invalid task number.");
         }
     }
 
@@ -174,28 +198,19 @@ public class Asep {
     }
 
     private void addTask(Task task) {
-        if (taskCount < MAX_TASKS) {
-            tasks[taskCount++] = task;
-            printTaskAdded(task);
-        } else {
-            System.out.println("____________________________________________________________");
-            System.out.println(" Task list is full. Cannot add more tasks.");
-            System.out.println("____________________________________________________________");
-        }
+        tasks.add(task);
+        printTaskAdded(task);
     }
 
     private void printTaskAdded(Task task) {
         System.out.println("____________________________________________________________");
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task.toString());
-        System.out.println(" Now you have " + taskCount + " tasks in the list.");
+        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
         System.out.println("____________________________________________________________");
     }
 
     public static void main(String[] args) {
         new Asep().run();
     }
-
-
-
 }
