@@ -27,24 +27,34 @@ public class Asep {
         printGreeting();
 
         while (true) {
-            String userInput = scanner.nextLine().trim();
-            if (userInput.equalsIgnoreCase("bye")) {
-                printFarewell();
-                break;
-            } else if (userInput.equalsIgnoreCase("list")) {
-                printTaskList();
-            } else if (userInput.toLowerCase().startsWith("mark ")) {
-                processMarkCommand(userInput);
-            } else if (userInput.toLowerCase().startsWith("unmark ")) {
-                processUnmarkCommand(userInput);
-            } else if (userInput.toLowerCase().startsWith("todo ")) {
-                processTodoCommand(userInput);
-            } else if (userInput.toLowerCase().startsWith("deadline ")) {
-                processDeadlineCommand(userInput);
-            } else if (userInput.toLowerCase().startsWith("event ")) {
-                processEventCommand(userInput);
-            } else {
-                System.out.println("Unknown command.");
+            try {
+                String userInput = scanner.nextLine().trim();
+                if (userInput.equalsIgnoreCase("bye")) {
+                    printFarewell();
+                    break;
+                } else if (userInput.equalsIgnoreCase("list")) {
+                    printTaskList();
+                } else if (userInput.toLowerCase().startsWith("mark ")) {
+                    processMarkCommand(userInput);
+                } else if (userInput.toLowerCase().startsWith("unmark ")) {
+                    processUnmarkCommand(userInput);
+                } else if (userInput.toLowerCase().startsWith("todo ")) {
+                    processTodoCommand(userInput);
+                } else if (userInput.toLowerCase().startsWith("deadline ")) {
+                    processDeadlineCommand(userInput);
+                } else if (userInput.toLowerCase().startsWith("event ")) {
+                    processEventCommand(userInput);
+                } else {
+                    throw new AsepException("Oops! I don't recognize this command. Please try again.");
+                }
+            } catch (AsepException e) {
+                System.out.println("____________________________________________________________");
+                System.out.println(" " + e.getMessage());
+                System.out.println("____________________________________________________________");
+            } catch (Exception e) {
+                System.out.println("____________________________________________________________");
+                System.out.println(" An unexpected error occurred: " + e.getMessage());
+                System.out.println("____________________________________________________________");
             }
         }
 
@@ -117,48 +127,49 @@ public class Asep {
         }
     }
 
-    private void processTodoCommand(String command) {
+    private void processTodoCommand(String command) throws AsepException {
         String description = command.substring(5).trim();
         if (description.isEmpty()) {
-            System.out.println("Task description cannot be empty.");
-            return;
+            throw new AsepException("Oops! The description of a todo cannot be empty.");
         }
         addTask(new Todo(description));
     }
 
-    private void processDeadlineCommand(String command) {
-        // Remove "deadline " prefix (9 characters)
+    private void processDeadlineCommand(String command) throws AsepException {
         String content = command.substring(9).trim();
         int byIndex = content.indexOf("/by");
+
         if (byIndex == -1) {
-            System.out.println("Invalid format. Use: deadline <desc> /by <time>");
-            return;
+            throw new AsepException("Invalid deadline format. Use: deadline <desc> /by <time>");
         }
+
         String description = content.substring(0, byIndex).trim();
         String by = content.substring(byIndex + 3).trim();
+
         if (description.isEmpty() || by.isEmpty()) {
-            System.out.println("Task description and deadline cannot be empty.");
-            return;
+            throw new AsepException("Deadline description and time cannot be empty.");
         }
+
         addTask(new Deadline(description, by));
     }
 
-    private void processEventCommand(String command) {
-        // Remove "event " prefix (6 characters)
+    private void processEventCommand(String command) throws AsepException {
         String content = command.substring(6).trim();
         int fromIndex = content.indexOf("/from");
         int toIndex = content.indexOf("/to");
+
         if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
-            System.out.println("Invalid format. Use: event <desc> /from <start> /to <end>");
-            return;
+            throw new AsepException("Invalid event format. Use: event <desc> /from <start> /to <end>");
         }
+
         String description = content.substring(0, fromIndex).trim();
         String from = content.substring(fromIndex + 5, toIndex).trim();
         String to = content.substring(toIndex + 3).trim();
+
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            System.out.println("Task description, start, and end times cannot be empty.");
-            return;
+            throw new AsepException("Event description, start, and end times cannot be empty.");
         }
+
         addTask(new Event(description, from, to));
     }
 
@@ -184,4 +195,7 @@ public class Asep {
     public static void main(String[] args) {
         new Asep().run();
     }
+
+
+
 }
