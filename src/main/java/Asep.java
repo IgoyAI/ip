@@ -10,6 +10,8 @@ public class Asep {
     private static final int MAX_TASKS = 100;
     private final Task[] tasks;
     private int taskCount;
+    private final Storage storage;
+
 
     /**
      * Constructs a new Asep chatbot.
@@ -17,6 +19,9 @@ public class Asep {
     public Asep() {
         tasks = new Task[MAX_TASKS];
         taskCount = 0;
+        tasks = new ArrayList<>();
+        storage = new Storage("./data/asep.txt");
+        tasks = storage.loadTasks();
     }
 
     /**
@@ -176,6 +181,8 @@ public class Asep {
     private void addTask(Task task) {
         if (taskCount < MAX_TASKS) {
             tasks[taskCount++] = task;
+            tasks.add(task);
+            storage.saveTasks(tasks);
             printTaskAdded(task);
         } else {
             System.out.println("____________________________________________________________");
@@ -190,6 +197,30 @@ public class Asep {
         System.out.println("   " + task.toString());
         System.out.println(" Now you have " + taskCount + " tasks in the list.");
         System.out.println("____________________________________________________________");
+    }
+
+    private void processDeleteCommand(String command) throws AsepException {
+        String[] parts = command.split("\\s+");
+        if (parts.length != 2) {
+            throw new AsepException("Invalid command format. Use: delete <task number>");
+        }
+
+        try {
+            int index = Integer.parseInt(parts[1]) - 1;
+            if (index < 0 || index >= tasks.size()) {
+                throw new AsepException("Invalid task number.");
+            }
+
+            Task removedTask = tasks.remove(index);
+            System.out.println("____________________________________________________________");
+            System.out.println(" Noted. I've removed this task:");
+            System.out.println("   " + removedTask.toString());
+            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+            System.out.println("____________________________________________________________");
+            storage.saveTasks(tasks);
+        } catch (NumberFormatException e) {
+            throw new AsepException("Invalid task number.");
+        }
     }
 
     public static void main(String[] args) {
