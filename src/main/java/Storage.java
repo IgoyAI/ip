@@ -8,6 +8,9 @@ public class Storage {
         this.filePath = filePath;
     }
 
+    /**
+     * Saves tasks to a file.
+     */
     public void saveTasks(ArrayList<Task> tasks) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             for (Task task : tasks) {
@@ -19,6 +22,9 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads tasks from a file.
+     */
     public ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
         File file = new File(filePath);
