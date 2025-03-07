@@ -52,6 +52,12 @@ public class Parser {
                     throw new AsepException("Event description, start, and end times cannot be empty.");
                 }
                 return new EventCommand(eventDesc, from, to);
+            case "find":
+                String searchTerm = fullCommand.substring(5).trim();
+                if (searchTerm.isEmpty()) {
+                    throw new AsepException("Search term cannot be empty.");
+                }
+                return new FindCommand(searchTerm);
             default:
                 throw new AsepException("Oops! I don't recognize this command. Please try again.");
         }
