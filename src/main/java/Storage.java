@@ -1,80 +1,27 @@
-import java.io.*;
 import java.util.ArrayList;
 
 public class Storage {
-    private final String filePath;
+    private String filePath;
 
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
     /**
-     * Saves tasks to a file.
+     * Loads tasks from the file and returns a TaskList.
+     * (For simplicity, this stub just returns an empty TaskList.
+     * In a real application you would read the file and create Task objects.)
      */
-    public void saveTasks(ArrayList<Task> tasks) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            for (Task task : tasks) {
-                writer.write(taskToFileFormat(task));
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            System.out.println("Error saving tasks: " + e.getMessage());
-        }
+    public TaskList loadTasks() throws AsepException {
+        // TODO: Implement file reading and Task parsing
+        return new TaskList(new ArrayList<>());
     }
 
     /**
-     * Loads tasks from a file.
+     * Saves the tasks in the TaskList to the file.
+     * (For simplicity, this stub does nothing. You can implement the I/O as needed.)
      */
-    public ArrayList<Task> loadTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
-        File file = new File(filePath);
-
-        if (!file.exists()) {
-            return tasks;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Task task = parseTask(line);
-                if (task != null) {
-                    tasks.add(task);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error loading tasks: " + e.getMessage());
-        }
-
-        return tasks;
-    }
-
-    private String taskToFileFormat(Task task) {
-        return task.getType() + " | " + (task.isDone ? "1" : "0") + " | " + task.description + task.getExtraInfo();
-    }
-
-    private Task parseTask(String line) {
-        String[] parts = line.split(" \\| ");
-        if (parts.length < 3) return null;
-
-        String type = parts[0];
-        boolean isDone = parts[1].equals("1");
-        String description = parts[2];
-
-        switch (type) {
-            case "T":
-                Todo todo = new Todo(description);
-                if (isDone) todo.markAsDone();
-                return todo;
-            case "D":
-                Deadline deadline = new Deadline(description, parts[3]);
-                if (isDone) deadline.markAsDone();
-                return deadline;
-            case "E":
-                Event event = new Event(description, parts[3], parts[4]);
-                if (isDone) event.markAsDone();
-                return event;
-            default:
-                return null;
-        }
+    public void saveTasks(TaskList tasks) {
+        // TODO: Implement saving tasks to file
     }
 }
