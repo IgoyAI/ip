@@ -1,27 +1,15 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 
-/**
- * Asep is a chatbot that tracks tasks of various types:
- * Todos, Deadlines, and Events. It supports marking tasks as done/undone,
- * listing tasks, and adding new tasks via commands.
- */
-
 public class Asep {
     private final ArrayList<Task> tasks;
-    private final Storage storage; // Fixed: Declare storage properly
+    private final Storage storage;
 
-    /**
-     * Constructs a new Asep chatbot.
-     */
     public Asep() {
-        this.storage = new Storage("./data/asep.txt"); // Initialize storage
-        this.tasks = storage.loadTasks();  // Load saved tasks
+        this.storage = new Storage("./data/asep.txt");
+        this.tasks = storage.loadTasks();
     }
 
-    /**
-     * Starts the chatbot.
-     */
     public void run() {
         Scanner scanner = new Scanner(System.in);
         printGreeting();
@@ -59,7 +47,6 @@ public class Asep {
                 System.out.println("____________________________________________________________");
             }
         }
-
         scanner.close();
     }
 
@@ -92,7 +79,7 @@ public class Asep {
     private void processMarkCommand(String command) throws AsepException {
         int index = parseTaskIndex(command, "mark");
         tasks.get(index).markAsDone();
-        storage.saveTasks(tasks);  // Save to file after marking
+        storage.saveTasks(tasks);
         System.out.println("____________________________________________________________");
         System.out.println(" Nice! I've marked this task as done:");
         System.out.println("   " + tasks.get(index));
@@ -102,7 +89,7 @@ public class Asep {
     private void processUnmarkCommand(String command) throws AsepException {
         int index = parseTaskIndex(command, "unmark");
         tasks.get(index).markAsNotDone();
-        storage.saveTasks(tasks);  // Save to file after unmarking
+        storage.saveTasks(tasks);
         System.out.println("____________________________________________________________");
         System.out.println(" OK, I've marked this task as not done yet:");
         System.out.println("   " + tasks.get(index));
@@ -112,7 +99,7 @@ public class Asep {
     private void processDeleteCommand(String command) throws AsepException {
         int index = parseTaskIndex(command, "delete");
         Task removedTask = tasks.remove(index);
-        storage.saveTasks(tasks);  // Save to file after deleting
+        storage.saveTasks(tasks);
         System.out.println("____________________________________________________________");
         System.out.println(" Noted. I've removed this task:");
         System.out.println("   " + removedTask);
@@ -131,18 +118,14 @@ public class Asep {
     private void processDeadlineCommand(String command) throws AsepException {
         String content = command.substring(9).trim();
         int byIndex = content.indexOf("/by");
-
         if (byIndex == -1) {
             throw new AsepException("Invalid deadline format. Use: deadline <desc> /by <time>");
         }
-
         String description = content.substring(0, byIndex).trim();
         String by = content.substring(byIndex + 3).trim();
-
         if (description.isEmpty() || by.isEmpty()) {
             throw new AsepException("Deadline description and time cannot be empty.");
         }
-
         addTask(new Deadline(description, by));
     }
 
@@ -150,53 +133,10 @@ public class Asep {
         String content = command.substring(6).trim();
         int fromIndex = content.indexOf("/from");
         int toIndex = content.indexOf("/to");
-
         if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
             throw new AsepException("Invalid event format. Use: event <desc> /from <start> /to <end>");
         }
-
         String description = content.substring(0, fromIndex).trim();
         String from = content.substring(fromIndex + 5, toIndex).trim();
         String to = content.substring(toIndex + 3).trim();
-
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            throw new AsepException("Event description, start, and end times cannot be empty.");
-        }
-
-        addTask(new Event(description, from, to));
-    }
-
-    private void addTask(Task task) {
-        tasks.add(task);
-        storage.saveTasks(tasks);  // Save to file after adding
-        printTaskAdded(task);
-    }
-
-    private void printTaskAdded(Task task) {
-        System.out.println("____________________________________________________________");
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-        System.out.println("____________________________________________________________");
-    }
-
-    private int parseTaskIndex(String command, String action) throws AsepException {
-        String[] parts = command.split("\\s+");
-        if (parts.length != 2) {
-            throw new AsepException("Invalid command format. Usage: " + action + " <task number>");
-        }
-        try {
-            int index = Integer.parseInt(parts[1]) - 1;
-            if (index < 0 || index >= tasks.size()) {
-                throw new AsepException("Invalid task number.");
-            }
-            return index;
-        } catch (NumberFormatException e) {
-            throw new AsepException("Invalid task number.");
-        }
-    }
-
-    public static void main(String[] args) {
-        new Asep().run();
-    }
-}
