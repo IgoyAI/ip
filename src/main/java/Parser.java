@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Parser {
     public static Command parse(String fullCommand) throws AsepException {
         String commandWord = fullCommand.split(" ")[0].toLowerCase();
@@ -22,14 +24,20 @@ public class Parser {
                 String deadlineContent = fullCommand.substring(9).trim();
                 int byIndex = deadlineContent.indexOf("/by");
                 if (byIndex == -1) {
-                    throw new AsepException("Invalid deadline format. Use: deadline <desc> /by <time>");
+                    throw new AsepException("Invalid deadline format. Use: deadline <desc> /by <date>");
                 }
                 String deadlineDesc = deadlineContent.substring(0, byIndex).trim();
-                String by = deadlineContent.substring(byIndex + 3).trim();
-                if (deadlineDesc.isEmpty() || by.isEmpty()) {
-                    throw new AsepException("Deadline description and time cannot be empty.");
+                String byStr = deadlineContent.substring(byIndex + 3).trim();
+                if (deadlineDesc.isEmpty() || byStr.isEmpty()) {
+                    throw new AsepException("Deadline description and date cannot be empty.");
                 }
-                return new DeadlineCommand(deadlineDesc, by);
+                LocalDate byDate;
+                try {
+                    byDate = LocalDate.parse(byStr, Deadline.INPUT_DATE_FORMAT);
+                } catch (Exception e) {
+                    throw new AsepException("Invalid date format. Please use yyyy-MM-dd.");
+                }
+                return new DeadlineCommand(deadlineDesc, byDate);
             case "event":
                 String eventContent = fullCommand.substring(6).trim();
                 int fromIndex = eventContent.indexOf("/from");
