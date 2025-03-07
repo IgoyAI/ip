@@ -21,6 +21,11 @@ public abstract class Task {
         return "";
     }
 
+    // New getter method for the task description
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public String toString() {
         String statusIcon = isDone ? "X" : " ";
