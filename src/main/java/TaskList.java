@@ -30,4 +30,9 @@ public class TaskList {
     public boolean isEmpty() {
         return tasks.isEmpty();
     }
+
+    // New getter method to expose the underlying ArrayList
+    public ArrayList<Task> getTasks() {
+        return tasks;
+    }
 }

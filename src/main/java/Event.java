@@ -17,4 +17,12 @@ public class Event extends Task {
     protected String getExtraInfo() {
         return " (from: " + from + " to: " + to + ")";
     }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
+    }
 }
