@@ -1,6 +1,37 @@
 import java.time.LocalDate;
 
+/**
+ * The Parser class is responsible for interpreting user input commands
+ * and converting them into corresponding Command objects.
+ * <p>
+ * It supports various commands such as "bye", "list", "mark", "unmark", "delete",
+ * "todo", "deadline", "event", and "find". If the command or its format is invalid,
+ * an AsepException is thrown.
+ * </p>
+ */
 public class Parser {
+
+    /**
+     * Parses a full command string and returns the appropriate Command object.
+     * <p>
+     * The method determines the command type based on the first word of the input,
+     * extracts necessary arguments, and creates a corresponding Command instance.
+     * Supported commands include:
+     * <ul>
+     *   <li>"bye" for exiting the application</li>
+     *   <li>"list" for listing all tasks</li>
+     *   <li>"mark", "unmark", and "delete" for task operations (requires a task number)</li>
+     *   <li>"todo" for adding a todo task (requires a description)</li>
+     *   <li>"deadline" for adding a deadline task (requires a description and a date)</li>
+     *   <li>"event" for adding an event task (requires a description, start, and end time)</li>
+     *   <li>"find" for searching tasks by a keyword</li>
+     * </ul>
+     * </p>
+     *
+     * @param fullCommand the full command input from the user.
+     * @return a Command object corresponding to the parsed command.
+     * @throws AsepException if the command is unrecognized or if its format is invalid.
+     */
     public static Command parse(String fullCommand) throws AsepException {
         String commandWord = fullCommand.split(" ")[0].toLowerCase();
         switch (commandWord) {
@@ -63,6 +94,19 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses the task index from a command string.
+     * <p>
+     * This helper method extracts the task number from commands that operate on tasks,
+     * such as "mark", "unmark", and "delete". The method expects the command to contain
+     * exactly two parts: the command word and the task number. The task number is converted
+     * from a 1-based index to a 0-based index.
+     * </p>
+     *
+     * @param fullCommand the full command string which includes a task number.
+     * @return the zero-based index of the task.
+     * @throws AsepException if the command format is incorrect or if the task number is invalid.
+     */
     private static int parseTaskIndex(String fullCommand) throws AsepException {
         String[] parts = fullCommand.split("\\s+");
         if (parts.length != 2) {
